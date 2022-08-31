@@ -9,3 +9,22 @@ jobs:
         env:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
+
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+      - name: Build and run tests
+
+      - name: Install Node
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends nodejs
+
+      - name: Bundle Install dependencies
+        run: gem install bundler -v 1.17.3
+
+      - name: Install Gems
+        run: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
