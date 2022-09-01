@@ -1,25 +1,39 @@
-name: CI
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    services:
-      db:
-        image: postgres:11-alpine
+name: intergration
 
-    steps:
-      - uses: actions/checkout@v1
-      - name: Setup Ruby
+on:
+  push:
+    branches: [master]
+    
+  pull_request:
+    branches: [master]
+    types:
+      - labeled
+      - unlabeled
+      - synchronize
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - unlocked
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12.1-alpine
+
+steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Ruby 2.7
         uses: actions/setup-ruby@v1
         with:
-          ruby-version: 2.6.x
-
-      - name: Install Node
-        run: |
-          sudo apt-get update && apt-get install -y --no-install-recommends nodejs
-
-      - name: Bundle Install dependencies
-        run: sudo gem install bundler -v 1.17.3
-
-      - name: Install Gems
-        run: sudo bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
+          ruby-version: 2.7.x
+      - name: Setup cache key and directory for gems cache
+        uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-use-ruby-${{ hashFiles('**/Gemfile.lock') }}
